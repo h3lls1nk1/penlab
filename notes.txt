@@ -1,0 +1,1 @@
+Con click, se puede poner el atributo "prompt" para que un parámetro, en caso de no pasárselo, lo pida por consola.
