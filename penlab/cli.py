@@ -15,8 +15,37 @@ from rich import box
 import yaml
 from datetime import datetime
 import shutil
+import re
 
 from penlab.notes import notes as notes_cli
+
+INVALID_FILENAME_CHARS = r'<>:"/\\|?*\0'
+INVALID_FILENAME_REGEX = re.compile(r'[<>:"/\\|?\*\x00]')
+
+def sanitize_name (name: str, replace_with: str = '_') -> str:
+    """ Reemplaza caracteres inválidos en nombres de archivos/directorios y recorta
+     espacios al inicio/final. Mantiene guiones y underscores. """
+    
+    if not isinstance(name, str):
+        name = str(name)
+
+    name = INVALID_FILENAME_REGEX.sub(replace_with, name)
+    name = re.sub(r'\s+', ' ', name).strip()
+
+    return name[:255] if len(name) > 255 else name
+
+def is_within_directory (base: Path, target: Path) -> bool:
+    """ Comprueba que 'target' esté dentro de 'base' """
+    try:
+        base_res = base.resolve()
+        target_res = target.resolve()
+    except Exception:
+        return False
+    
+    try:
+        return str(target_res).startswith(str(base_res))
+    except Exception:
+        return False
 
 console = Console()
 
@@ -199,6 +228,7 @@ def show_banner ():
 @click.option('--template', '-t', default='default', help='Template a utilizar')
 @click.option('--target', help='IP o dominio del target')
 @click.option('--your-ip', help='Tu IP de atacante')
+@click.option('--force', is_flag=True, help='Forzar la sobrescritura si existe (con precación)')
 def init (project_name, template, target, your_ip):
     """ Inicializa un nuevo proyecto con la estructura de directorios indicada en la template (default) """
     console.print(f'\n[cyan] Inicializando proyecto: [/cyan] [bold]{project_name}[/bold]')
@@ -211,17 +241,41 @@ def init (project_name, template, target, your_ip):
 
     if not template_data:
         return
-    
-    variables = {
-        'project-name': project_name,
-        'target': target or 'TARGET_IP',
-        'your-ip': your_ip or config.get('your_ip', '10.10.x.x'),
-        'date': datetime.now().strftime('%Y-%m-%d'),
-        'author': config.get('author', 'pentester')
-    }
 
     # Se cran los directorios del proyecto.
     project_path = Path(project_name)
+
+    template_defaults = template_data.get('variables', {}) or {}
+
+    def resolve_var (key, cli_value=None, template_defaults=template_defaults, config=config, fallback=''):
+        # 1) Valor pasado por CLI explícitamente (no None)
+        if cli_value is not None:
+            return cli_value
+        
+        # 2) Valor en la plantilla (template defaults)
+        if key in template_defaults:
+            return template_defaults[key]
+        
+        # 3) Valor en la configuración global
+        if key in config:
+            return config[key]
+        
+        # 4) Fallback hardcoded
+        return fallback
+
+    variables = {
+        'project-name': project_name,
+        'target': resolve_var('target', cli_value=target, fallback='TARGET_IP'),
+        'your-ip': resolve_var('your-ip', cli_value=your_ip, fallback=config.get('your-ip', '10.10.x,x')),
+        'date': datetime.now().strftime('%Y-%m-%d'),
+        'author': resolve_var('author', cli_value=None, fallback=config.get('author', 'pentester'))
+    }
+
+    for k, v in list(variables.items()):
+        if v is None:
+            variables[k] = ''
+        else:
+            variables[k] = str(v)
 
     if project_path.exists():
         console.print(f'[red]✗[/red] El directorio "{project_name}" ya existe')
@@ -327,7 +381,7 @@ def show_template (template_name):
     console.print(Panel.fit(
         f'[bold cyan]{template_data.get("name", template_name)}[/bold cyan]\n'
         f'[dim]Versión {template_data.get("version", 1.0)} | por {template_data.get("author", "Desconocido")}[/dim]\n\n'
-        f'{template_data.get('description', 'Sin descripción')}\n\n'
+        f'{template_data.get("description", "Sin descripción")}\n\n'
         f'[yellow]Tags:[/yellow] {", ".join(template_data.get("tags", []))}',
         title='[green] Template info[/green]',
         border_style='cyan'
