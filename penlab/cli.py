@@ -16,6 +16,8 @@ import yaml
 from datetime import datetime
 import shutil
 
+from penlab.notes import notes as notes_cli
+
 console = Console()
 
 # Configuración de paths.
@@ -389,6 +391,7 @@ def set_config (key, value):
     console.print(f'\n[green]✓[/green] Configuración actualizada: [cyan]{key}[/cyan] = [yellow]{value}[/yellow]\n')
 
 
+cli.add_command(notes_cli, name='notes')
 
 
 if __name__ == '__main__':
