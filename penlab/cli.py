@@ -17,7 +17,7 @@ import shutil
 from utils import sanitize_name, is_within_directory
 from config import ensure_penlab_structure, load_config, save_config, TEMPLATES_DIR, CONFIG_FILE
 from templates import load_template, validate_template
-from project import create_file, create_structure
+from project import create_file, create_structure, save_project_metadata
 from ui import show_banner, build_tree
 
 from penlab.notes import notes as notes_cli
@@ -76,8 +76,7 @@ def cli (ctx):
 
     if ctx.invoked_subcommand is None:
         show_banner()
-
-
+        ctx.exit()
 
 # ========================================= COMANDOS =========================================
 # 
@@ -86,11 +85,11 @@ def cli (ctx):
 @click.argument('project_name')
 @click.option('--template', '-t', default='default', help='Template a utilizar')
 @click.option('--target', help='IP o dominio del target')
-@click.option('--your-ip', help='Tu IP de atacante')
+@click.option('--your-ip', help='Tu IP de atacante')  # Esto se convierte en your_ip
 @click.option('--force', is_flag=True, help='Forzar la sobrescritura si existe (con precación)')
-@click.option('--dry-run', is_flag=True, help='Simula la creación sin escribir archivos')
+@click.option('--dry-run', is_flag=True, help='Simula la creación sin escribir archivos')  # Esto se convierte en dry_run
 @click.option('--yes', is_flag=True, help='Responde "sí" a todas las confirmaciones')
-def init (project_name, template, target, your_ip, force, dry_run, yes):
+def init(project_name, template, target, your_ip, force, dry_run, yes):
     """ Inicializa un nuevo proyecto con la estructura de directorios indicada en la template (default) """
     if dry_run:
         console.print('[yellow]⚠[/yellow] Modo DRY-RUN activado: no se crearán archivos reales\n')
@@ -217,6 +216,70 @@ def init (project_name, template, target, your_ip, force, dry_run, yes):
 
     console.print(f'\n[yellow]->[/yellow] cd {project_name}')
     console.print(f'[yellow]->[/yellow] cat README.md\n')
+
+    save_project_metadata(project_path, variables, template)
+
+@cli.command()
+def list_projects():
+    """Lista todos los proyectos Penlab en el directorio actual."""
+    cwd = Path.cwd()
+    projects = []
+
+    for path in cwd.iterdir():
+        if path.is_dir() and (path / '.penlab.yaml').exists():
+            with open(path / '.penlab.yaml', 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f) or {}
+            projects.append({
+                'name': data.get('name', path.name),
+                'template': data.get('template', 'N/A'),
+                'target': data.get('target', '-'),
+                'created': data.get('created', '-'),
+                'path': str(path)
+            })
+
+    if not projects:
+        console.print('[yellow]No se encontraron proyectos Penlab en este directorio.[/yellow]')
+        return
+
+    table = Table(box=box.SIMPLE, show_header=True, header_style='bold cyan')
+    table.add_column('Proyecto', style='cyan')
+    table.add_column('Template', style='green')
+    table.add_column('Target', style='yellow')
+    table.add_column('Creado', style='white')
+    table.add_column('Ruta', style='dim')
+
+    for p in projects:
+        table.add_row(p['name'], p['template'], p['target'], p['created'], p['path'])
+
+    console.print()
+    console.print(table)
+
+@cli.command()
+@click.argument('project_name')
+def info(project_name):
+    """Muestra información detallada de un proyecto Penlab."""
+    project_path = Path(project_name).resolve()
+    meta_path = project_path / '.penlab.yaml'
+
+    if not meta_path.exists():
+        console.print(f'[red]✗[/red] No se encontró metadata en {meta_path}')
+        return
+
+    with open(meta_path, 'r', encoding='utf-8') as f:
+        data = yaml.safe_load(f) or {}
+
+    panel_content = (
+        f"[bold cyan]Proyecto:[/bold cyan] {data.get('name')}\n"
+        f"[bold cyan]Template:[/bold cyan] {data.get('template')}\n"
+        f"[bold cyan]Target:[/bold cyan] {data.get('target')}\n"
+        f"[bold cyan]Tu IP:[/bold cyan] {data.get('your-ip')}\n"
+        f"[bold cyan]Autor:[/bold cyan] {data.get('author')}\n"
+        f"[bold cyan]Creado:[/bold cyan] {data.get('created')}\n"
+        f"[bold cyan]Ruta:[/bold cyan] {data.get('path')}\n"
+    )
+
+    console.print()
+    console.print(Panel(panel_content, title=f"[green]Información del Proyecto[/green]", border_style="cyan"))
 
 # COMANDO TEMPLATES
 @cli.group()

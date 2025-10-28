@@ -2,8 +2,10 @@
 Creación y gestión de proyectos de Penlab.
 """
 import os
+import yaml
 from pathlib import Path
 from rich.console import Console
+from datetime import datetime
 
 from utils import sanitize_name, is_within_directory
 
@@ -88,3 +90,25 @@ def create_file (path: Path, file_info, variables):
                 file_path.chmod(0o755)
         except Exception:
             pass
+
+def save_project_metadata (project_path: Path, variables: dict, template_name: str):
+    """ Guarda un archivo .penlab.yaml con información básica del proyecto. """
+    metadata = {
+        'name': variables.get('project-name'),
+        'template': template_name,
+        'target': variables.get('target'),
+        'your-ip': variables.get('your-ip'),
+        'author': variables.get('author'),
+        'created': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'path': str(project_path.resolve())
+    }
+
+    meta_path = project_path / '.penlab.yaml'
+
+    try:
+        with open(meta_path, 'w', encoding='utf-8') as f:
+            yaml.safe_dump(metadata, f, allow_unicode=True)
+
+        console.print(f'[dim]→ Metadata guardada en {meta_path}[/dim]')
+    except Exception as e:
+        console.print(f'[red]✗ Error guardando metadata del proyecto:[/red] {e}')

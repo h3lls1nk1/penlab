@@ -1,5 +1,5 @@
 """
-Sistema de gestión de notas para Penlab
+Sistema de gestión de notas para Penlab - NO FUNCIONAL
 """
 
 import json
