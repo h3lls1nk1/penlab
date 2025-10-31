@@ -44,9 +44,12 @@ from commands.templates_cmd import templates
 from commands.config_cmd import config
 
 from ui import show_banner
+from config import ensure_penlab_structure
 from penlab.notes import notes as notes_cli # Pendiente de validación y habilitación # 
 
 console = Console()
+
+ensure_penlab_structure()
 
 # ============================================================
 # GRUPO PRINCIPAL: penlab

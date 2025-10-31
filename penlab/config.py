@@ -13,6 +13,7 @@ from pathlib import Path
 PENLAB_HOME = Path.home() / '.penlab'
 TEMPLATES_DIR = PENLAB_HOME / 'templates'
 CONFIG_FILE = PENLAB_HOME / 'config.yaml'
+DEFAULT_TEMPLATE_FILE = TEMPLATES_DIR / "default.yaml"
 
 # Configuración por defecto de los proyectos. 
 DEFAULT_CONFIG = {
@@ -32,6 +33,40 @@ def ensure_penlab_structure ():
     if not CONFIG_FILE.exists():
         with open(CONFIG_FILE, 'w') as f:
             yaml.dump(DEFAULT_CONFIG, f)
+
+    if not DEFAULT_TEMPLATE_FILE.exists(): 
+        default_template = {
+            "name": "default",
+            "version": "1.0",
+            "author": "Penlab",
+            "description": "Plantilla por defecto para Penlab",
+            "tags": ["default", "pentest"],
+            "variables": {
+                "target": "IP del objetivo",
+                "your-ip": "Tu IP de atacante"
+            },
+            "structure": [
+                {
+                    "dir": "recon",
+                    "files": [
+                        {
+                            "name": "notes.md",
+                            "content": "# Reconnaissance - {target}\nDate: {date}\n"
+                        }
+                    ]
+                }
+            ],
+            "global_files": [
+                {
+                    "name": "README.md",
+                    "content": "# {project-name}\nTarget: {target}\n"
+                }
+            ]
+        }   
+
+        with open(DEFAULT_TEMPLATE_FILE, 'w', encoding='utf-8') as f:
+            yaml.safe_dump(default_template, f, sort_keys=False, allow_unicode=True)
+        
 
 def load_config ():
     """ 

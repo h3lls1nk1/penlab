@@ -23,7 +23,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/h3lls1nk1/penlab',
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests*', 'docs*']),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Information Technology',
@@ -35,6 +35,8 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
     ],
+    keywords='pentesting cli cybersecurity automation yaml templates',
+    license='MIT',
     python_requires='>=3.8',
     install_requires=[
         'click>=8.0.0',
@@ -51,4 +53,5 @@ setup(
     package_data={
         'penlab': ['templates/*.yaml'],
     },
+    zip_safe=False,
 )
