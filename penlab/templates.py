@@ -1,28 +1,52 @@
 """
-Gestión de templates de Penlab.
+templates.py
+=====================
+
+Funciones para la gestión de templates de Penlab.
+
+Este módulo se encarga de cargar, validar y devolver las plantillas (`templates`)
+usadas por Penlab para crear proyectos automáticamente.  
+Cada template está escrita en formato **YAML** y define la estructura de carpetas,
+archivos y variables necesarias para inicializar un nuevo proyecto.
 """
 import yaml
-from pathlib import Path
 from rich.console import Console
 
 from config import TEMPLATES_DIR
 
 console = Console()
 
+# ============================================================
+# FUNCIÓN: validate_template
+# ============================================================
 def validate_template (template_data):
     """
     Valida de forma mínima la estructura de una template cargada desde YAML.
-    Devuelve (True, []) si es válida, o (False, [mensajes]) con los errores detectados.
-    Reglas comprobadas (no exhaustivas):
-      - template_data debe ser un dict
-      - name (opcional), version (opcional), description (opcional), tags (lista/str/num opcional)
-      - variables, si existe, debe ser dict
-      - structure debe ser lista; cada item debe ser dict con 'dir' (str)
-      - dentro de cada dir: 'subdirs' (lista) y 'files' (lista) si existen
-      - cada file debe ser dict con 'name' (str), 'content' (str opcional), 'executable' (bool opcional)
-      - global_files debe ser lista de file dicts (mismas comprobaciones que arriba)
-    """
 
+    Esta función realiza comprobaciones básicas de tipo y formato sobre los
+    campos principales de una plantilla para evitar errores al crear proyectos.
+    Devuelve una tupla `(es_valida, lista_de_errores)`.
+
+    Args:
+        template_data (dict): Estructura YAML ya cargada en memoria.
+
+    Returns:
+        tuple:
+            - (True, []) si es válida.
+            - (False, [mensajes]) si hay errores detectados.
+
+    Validaciones aplicadas:
+        - El YAML raíz debe ser un `dict`.
+        - `name`, `version`, `description`, `tags`: opcionales, pero con tipos válidos.
+        - `variables` (opcional): debe ser `dict` si existe.
+        - `structure`: debe ser una lista de objetos `dir` válidos.
+        - Cada `dir` puede contener `subdirs` y `files`.
+        - Cada `file` debe tener:
+            - `name` obligatorio.
+            - `content` opcional (string).
+            - `executable` opcional (bool).
+        - `global_files`: lista de archivos con la misma validación.
+    """
     errors = []
 
     if not isinstance(template_data, dict):
@@ -115,9 +139,29 @@ def validate_template (template_data):
     
     return True, []
 
+# ============================================================
+# FUNCIÓN: load_template
+# ============================================================
 def load_template (template_name):
-    """ Carga un template desde el directorio de templates a partir de su nombre.
-        Valida la estructura mínima antes de devolverla.
+    """
+    Carga y valida una plantilla YAML desde el directorio de templates de Penlab.
+
+    La función busca un archivo con extensión `.yaml` dentro del directorio
+    configurado (`TEMPLATES_DIR`).  
+    Si existe, se parsea y valida mediante `validate_template()` antes de
+    devolverlo al llamante.
+
+    Args:
+        template_name (str): Nombre del template (sin extensión `.yaml`).
+
+    Returns:
+        dict | None: El contenido de la plantilla si es válida, o `None` en caso de error.
+
+    Flujo de ejecución:
+        1. Construye la ruta `TEMPLATES_DIR / "{template_name}.yaml"`.
+        2. Intenta abrir y parsear el YAML.
+        3. Llama a `validate_template()` para comprobar su validez.
+        4. Si hay errores, los muestra en consola Rich.
     """
     template_path = TEMPLATES_DIR / f'{template_name}.yaml'
 

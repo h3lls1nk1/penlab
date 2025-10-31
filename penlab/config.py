@@ -1,5 +1,9 @@
 """
-Gestión de configuración de Penlab.
+config.py
+=====================
+
+Agrupa funciones y constantes de configuración de la herramienta Penlab.
+
 """
 import os
 import yaml
@@ -10,7 +14,7 @@ PENLAB_HOME = Path.home() / '.penlab'
 TEMPLATES_DIR = PENLAB_HOME / 'templates'
 CONFIG_FILE = PENLAB_HOME / 'config.yaml'
 
-# Configuración por defecto.
+# Configuración por defecto de los proyectos. 
 DEFAULT_CONFIG = {
     'your_ip': '10.10.14.x',
     'author': os.getenv('USER', 'pentester'),
@@ -18,7 +22,10 @@ DEFAULT_CONFIG = {
 }
 
 def ensure_penlab_structure ():
-    """ Crea la estructura de directorios de Penlab si no existe. """
+    """
+    Asegura que los directorios básicos y el archivo de configuración global
+    de Penlab esten creados. Si no lo están, los crea.
+    """
     PENLAB_HOME.mkdir(exist_ok=True)
     TEMPLATES_DIR.mkdir(exist_ok=True)
 
@@ -27,7 +34,11 @@ def ensure_penlab_structure ():
             yaml.dump(DEFAULT_CONFIG, f)
 
 def load_config ():
-    """ Carga la configuración de Penlab. """
+    """ 
+    Se asegura de que toda la estructura básica de directorios y archivos esté
+    creada y luego carga la configuración del archivo definido en `CONFIG_FILE`.
+    En caso de que algo falle, devuelve la configuración por defecto. 
+    """
     ensure_penlab_structure()
 
     try:
@@ -37,6 +48,12 @@ def load_config ():
         return DEFAULT_CONFIG
     
 def save_config (config):
-    """ Guarda la configuración de Penlab. """
+    """
+    Guarda la configuración pasada como argumento en el archivo de configuración
+    global de Penlab.
+
+    Args:
+        config (str): Configuración a guardar globalmente.
+    """
     with open(CONFIG_FILE, 'w') as f:
         yaml.dump(config, f)

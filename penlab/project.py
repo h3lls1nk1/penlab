@@ -1,5 +1,16 @@
 """
-Creación y gestión de proyectos de Penlab.
+project.py
+=====================
+
+Funciones para la creación y gestión de proyectos Penlab.
+
+Este módulo contiene las funciones encargadas de:
+- Generar la estructura de directorios y archivos de un proyecto a partir de una *template*.
+- Crear archivos individuales reemplazando variables dinámicas.
+- Guardar la metadata del proyecto en el archivo `.penlab.yaml`.
+
+Estas funciones son utilizadas principalmente por el comando:
+    `penlab init <project-name>`
 """
 import os
 import yaml
@@ -11,8 +22,31 @@ from utils import sanitize_name, is_within_directory
 
 console = Console()
 
+# ============================================================
+# FUNCIÓN: create_structure
+# ============================================================
 def create_structure (base_path: Path, structure, variables):
-    """ Crea la estructura de directorios y archivos recursivamente sin escapar del base_path. """
+    """
+    Crea la estructura de directorios y archivos de un proyecto Penlab.
+
+    Recorre recursivamente la estructura definida en la plantilla YAML
+    y genera los directorios y archivos correspondientes.  
+    Evita que las rutas escapen del directorio base del proyecto.
+
+    Args:
+        base_path (Path): Ruta raíz del proyecto.
+        structure (list): Lista de diccionarios con la definición de carpetas.
+        variables (dict): Variables dinámicas (por ejemplo, {project-name}, {author}).
+
+    Ejemplo:
+        structure = [
+            {
+                "dir": "recon",
+                "files": [{"name": "notes.md"}],
+                "subdirs": [{"dir": "scans"}]
+            }
+        ]
+    """
     if not isinstance(structure, (list, tuple)):
         return
     
@@ -49,8 +83,18 @@ def create_structure (base_path: Path, structure, variables):
             for file_info in item.get('files', []):
                 create_file(dir_path, file_info, variables)
 
+# ============================================================
+# FUNCIÓN: create_file
+# ============================================================
 def create_file (path: Path, file_info, variables):
-    """ Crea un archivo con contenido opcional. """
+    """
+    Crea un archivo en la ruta indicada y escribe contenido dinámico opcional.
+
+    Args:
+        path (Path): Directorio donde se creará el archivo.
+        file_info (dict): Información del archivo (nombre, contenido, permisos).
+        variables (dict): Variables que serán sustituidas en nombre y contenido.
+    """
     if not isinstance(file_info, dict):
         return
     
@@ -91,8 +135,21 @@ def create_file (path: Path, file_info, variables):
         except Exception:
             pass
 
+# ============================================================
+# FUNCIÓN: save_project_metadata
+# ============================================================
 def save_project_metadata (project_path: Path, variables: dict, template_name: str):
-    """ Guarda un archivo .penlab.yaml con información básica del proyecto. """
+    """
+    Guarda la metadata básica del proyecto en `.penlab.yaml`.
+
+    Este archivo almacena la información esencial del proyecto:
+    nombre, plantilla usada, IPs, autor, fecha de creación y ruta.
+
+    Args:
+        project_path (Path): Ruta del proyecto.
+        variables (dict): Variables del proyecto (nombre, autor, etc.).
+        template_name (str): Nombre de la plantilla utilizada.
+    """
     metadata = {
         'name': variables.get('project-name'),
         'template': template_name,

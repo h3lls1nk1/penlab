@@ -1,4 +1,13 @@
-""" Archivo del proyecto para configurar la instalación del paquete """
+"""
+setup.py
+=====================
+
+Script de instalación para el paquete **Penlab**.
+
+Este archivo define la configuración del paquete, sus dependencias,
+la información de distribución (autor, licencia, versión, etc.)
+y el punto de entrada para el CLI (`penlab`).
+"""
 
 from  setuptools import setup, find_packages
 
