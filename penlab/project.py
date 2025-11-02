@@ -18,7 +18,7 @@ from pathlib import Path
 from rich.console import Console
 from datetime import datetime
 
-from utils import sanitize_name, is_within_directory
+from penlab.utils import sanitize_name, is_within_directory
 
 console = Console()
 

@@ -23,7 +23,7 @@ from rich.console import Console
 from rich.panel import Panel
 import yaml
 
-from ui_theme import THEME
+from penlab.ui_theme import THEME
 
 console = Console()
 

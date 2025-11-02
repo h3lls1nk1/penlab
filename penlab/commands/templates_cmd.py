@@ -30,9 +30,9 @@ from rich.panel import Panel
 import yaml
 import shutil
 
-from config import ensure_penlab_structure, TEMPLATES_DIR
-from templates import load_template, validate_template
-from ui_theme import THEME
+from penlab.config import ensure_penlab_structure, TEMPLATES_DIR
+from penlab.templates import load_template, validate_template
+from penlab.ui_theme import THEME
 
 console = Console()
 

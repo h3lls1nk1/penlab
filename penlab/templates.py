@@ -12,7 +12,7 @@ archivos y variables necesarias para inicializar un nuevo proyecto.
 import yaml
 from rich.console import Console
 
-from config import TEMPLATES_DIR
+from penlab.config import TEMPLATES_DIR
 
 console = Console()
 

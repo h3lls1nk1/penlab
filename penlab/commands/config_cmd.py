@@ -22,8 +22,8 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 
-from ui_theme import THEME
-from config import load_config, save_config, CONFIG_FILE
+from penlab.ui_theme import THEME
+from penlab.config import load_config, save_config, CONFIG_FILE
 
 console = Console()
 

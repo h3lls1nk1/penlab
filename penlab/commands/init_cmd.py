@@ -28,12 +28,12 @@ from rich.tree import Tree
 from rich.panel import Panel
 from rich.rule import Rule
 
-from config import load_config
-from templates import load_template
-from utils import sanitize_name, is_within_directory, simulate_structure
-from project import save_project_metadata, create_structure, create_file
-from ui import build_tree
-from ui_theme import THEME
+from penlab.config import load_config
+from penlab.templates import load_template
+from penlab.utils import sanitize_name, is_within_directory, simulate_structure
+from penlab.project import save_project_metadata, create_structure, create_file
+from penlab.ui import build_tree
+from penlab.ui_theme import THEME
 
 console = Console()
 

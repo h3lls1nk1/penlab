@@ -15,7 +15,7 @@ from rich.table import Table
 from rich.panel import Panel
 from rich import box
 
-from ui_theme import THEME
+from penlab.ui_theme import THEME
 
 console = Console()
 

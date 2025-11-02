@@ -37,14 +37,14 @@ import click
 from rich.console import Console
 
 # Importaciones de los subcomandos.
-from commands.init_cmd import init
-from commands.list_cmd import list_projects
-from commands.info_cmd import info
-from commands.templates_cmd import templates
-from commands.config_cmd import config
+from penlab.commands.init_cmd import init
+from penlab.commands.list_cmd import list_projects
+from penlab.commands.info_cmd import info
+from penlab.commands.templates_cmd import templates
+from penlab.commands.config_cmd import config
 
-from ui import show_banner
-from config import ensure_penlab_structure
+from penlab.ui import show_banner
+from penlab.config import ensure_penlab_structure
 from penlab.notes import notes as notes_cli # Pendiente de validación y habilitación # 
 
 console = Console()

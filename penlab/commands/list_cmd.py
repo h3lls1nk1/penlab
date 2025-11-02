@@ -24,7 +24,7 @@ from rich.table import Table
 from rich import box
 import yaml
 
-from ui_theme import THEME
+from penlab.ui_theme import THEME
 
 console = Console()
 
