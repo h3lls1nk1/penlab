@@ -40,6 +40,31 @@ pip install -r requirements.txt
 pip install .
 ```
 
+## 📁 Carpeta de Templates
+
+Nada más instalar la aplicación se crearán varios archivos de configuración en la raíz de tu usuario.
+Esto incluye la carpeta **`templates/`**.
+
+Las rutas por defecto suelen ser algo así:
+
+```bash
+# Windows
+C:\Users\usuario\.penlab\templates
+
+# Linux
+/home/usuario/.penlab/templates
+
+# macOS
+/Users/usuario/.penlab/templates
+```
+
+Puedes añadir tus plantillas YAML a esta carpeta de dos formas:
+- Manualmente, mediante comandos o *drag & drop*.
+- Con el siguiente comando:
+```bash
+  penlab templates import ruta/a/tu-plantilla.yaml
+```
+
 ## 🧩 Cómo funcionan las Templates en Penlab
 
 Las **templates** son el corazón de Penlab.  
